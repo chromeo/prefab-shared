@@ -1,0 +1,30 @@
+{
+  "name": "@mastercraft/prefab-shared",
+  "version": "1.0.0",
+  "description": "Code shared by the Mastercraft prefab request apps (panelboard, transformer, conduit).",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./pdf": "./src/platesPdf.js",
+    "./zip": "./src/zip.js",
+    "./xlsx": "./src/xlsx.js",
+    "./base64": "./src/base64.js"
+  },
+  "files": [
+    "src",
+    "!src/**/*.test.js"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write src"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "vitest": "^3.2.7"
+  }
+}
