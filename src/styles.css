@@ -1,0 +1,58 @@
+/* Shared form styles for the prefab apps. Import from the app's index.css, after the
+   @tailwind directives:  @import "@mastercraft/prefab-shared/styles.css";  */
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 rounded-lg border border-slate-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800;
+  }
+
+  .field {
+    @apply block;
+  }
+
+  .field > span,
+  .section-label {
+    @apply mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-600;
+  }
+
+  .field input,
+  .field select,
+  .field textarea,
+  .section-card textarea,
+  .table-input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-700 focus:ring-2 focus:ring-slate-200;
+  }
+
+  .field textarea {
+    @apply min-h-[4rem] resize-y;
+  }
+
+  .section-card {
+    @apply flex gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4;
+  }
+
+  .section-number {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white;
+  }
+}
+
+/* Phones: 16px text stops iOS from zooming into a field on focus. */
+@media (max-width: 639px) {
+  .field input,
+  .field select,
+  .field textarea,
+  .table-input {
+    font-size: 16px;
+  }
+}
+
+/* Printing uses each app's print layout; screen-only pieces hide. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
