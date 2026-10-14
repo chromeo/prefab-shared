@@ -16,9 +16,10 @@ const breakable = (text, at, side) => {
 
 /**
  * App title, intro and the Mastercraft logo/contact block (from the panelboard app).
- * Phones: the logo and contact share their own line at the top (logo left, contact right,
- * the email breaking after its @), with the title below, so nothing runs off the screen with large
- * text or zoom. Wider screens: title left, logo above contact on the right, capped at 45%.
+ * Phones: a centered letterhead above the title — logo full width, then email and web address
+ * (side by side, or one per line when they don't fit), then the version, and a hairline.
+ * Nothing runs off the screen with large text or zoom. Wider screens: title left, logo above
+ * contact on the right, capped at 45%.
  *   title    "Panelboard Prefab"
  *   intro    one sentence under the title (optional)
  *   version  e.g. "v10.26.0 · 7db1567"
@@ -34,18 +35,21 @@ export function AppHeader({ title, intro, version }) {
             <p className="web-form-intro mt-2 text-sm text-slate-500 sm:text-base">{intro}</p>
           )}
         </div>
-        <div className="brand-block flex min-w-0 items-center justify-between gap-3 text-xs text-slate-500 sm:block sm:max-w-[45%] sm:flex-none sm:text-right">
+        <div className="brand-block min-w-0 border-b border-slate-200 pb-3 text-center text-xs text-slate-500 sm:max-w-[45%] sm:flex-none sm:border-0 sm:pb-0 sm:text-right">
           <img
             src={MCE_LOGO}
             alt="Mastercraft Electric Inc."
-            className="brand-logo w-[150px] min-w-0 max-w-[50%] object-contain sm:ml-auto sm:w-[310px] sm:max-w-full"
+            className="brand-logo mx-auto block w-full max-w-[300px] object-contain sm:ml-auto sm:mr-0 sm:w-[310px] sm:max-w-full"
           />
-          <div className="brand-contact min-w-0 text-right leading-5 [overflow-wrap:anywhere] sm:mt-2">
-            {/* With large text, break only after the @ and before /prefab. */}
-            <div>{breakable(PREFAB_EMAIL, "@", 1)}</div>
-            <div>{breakable(PREFAB_WEB, "/", 0)}</div>
-            {version && <div className="mt-1 text-[11px]">{version}</div>}
+          <div className="brand-contact mt-2 flex flex-wrap justify-center gap-x-4 leading-5 [overflow-wrap:anywhere] sm:block">
+            <a className="block min-w-0 hover:underline" href={`mailto:${PREFAB_EMAIL}`}>
+              {breakable(PREFAB_EMAIL, "@", 1)}
+            </a>
+            <a className="block min-w-0 hover:underline" href={`https://${PREFAB_WEB}`}>
+              {breakable(PREFAB_WEB, "/", 0)}
+            </a>
           </div>
+          {version && <div className="mt-1 text-[11px]">{version}</div>}
         </div>
       </div>
     </header>

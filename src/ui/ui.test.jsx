@@ -124,7 +124,7 @@ describe("AppHeader", () => {
     expect(brand).toContain("min-w-0");
     expect(html).toContain("flex-col-reverse");
     expect(html).toContain("[overflow-wrap:anywhere]");
-    expect(html.match(/class="(brand-logo[^"]*)"/)[1]).toContain("max-w-[50%]");
+    expect(html.match(/class="(brand-logo[^"]*)"/)[1]).toContain("max-w-[300px]");
   });
 
   it("the logo is a JPEG", () => {
@@ -138,5 +138,20 @@ describe("AppHeader line breaks", () => {
     const html = renderToStaticMarkup(<AppHeader title="T" />);
     expect(html).toContain("prefab@<wbr/>mastercraftinc.com");
     expect(html).toContain("mastercraftinc.com<wbr/>/prefab");
+  });
+});
+
+describe("AppHeader on phones", () => {
+  const html = renderToStaticMarkup(<AppHeader title="T" version="v1" />);
+  it("is a centered letterhead with a hairline above the title", () => {
+    const brand = html.match(/class="(brand-block[^"]*)"/)[1];
+    expect(brand).toContain("text-center");
+    expect(brand).toContain("border-b");
+    expect(brand).toContain("sm:text-right");
+  });
+
+  it("the email and web address can be tapped", () => {
+    expect(html).toContain('href="mailto:prefab@mastercraftinc.com"');
+    expect(html).toContain('href="https://mastercraftinc.com/prefab"');
   });
 });

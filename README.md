@@ -82,6 +82,9 @@ Two app sessions may want to change this library while the apps are developed si
 
 ## Changes
 
+- **1.2.1** — `AppHeader` on phones is a centered letterhead: logo full width, then email and
+  web address (tappable links, one per line when they don't fit), then the version and a
+  hairline above the title. Wider screens unchanged.
 - **1.2.0** — `AppHeader`: panelboard's header, fixed for phones (its logo block was `shrink-0`
   and ran off the screen with large text or Safari zoom). `/logo`: the Mastercraft logo and the
   prefab shop contact, which each app had its own copy of.
