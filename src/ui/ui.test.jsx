@@ -3,7 +3,8 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ConfirmDialog, Notice, ScrollTopButton, Section } from "./index.js";
+import { MCE_LOGO, dataUrlBytes } from "../logo.js";
+import { AppHeader, ConfirmDialog, Notice, ScrollTopButton, Section } from "./index.js";
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 let root, host;
@@ -92,5 +93,50 @@ describe("Notice, ConfirmDialog, ScrollTopButton", () => {
 
   it("ScrollTopButton starts hidden", () => {
     expect(renderToStaticMarkup(<ScrollTopButton />)).toContain('aria-hidden="true"');
+  });
+});
+
+describe("AppHeader", () => {
+  const html = renderToStaticMarkup(
+    <AppHeader
+      title="Transformer Prefab"
+      intro="Select the services."
+      version="v7.6.1 · abc1234"
+    />,
+  );
+  it("shows the title, intro, logo, contact and version", () => {
+    const text = html.replace(/<wbr\/>/g, "");
+    for (const t of [
+      "Transformer Prefab",
+      "Select the services.",
+      "prefab@mastercraftinc.com",
+      "mastercraftinc.com/prefab",
+      "v7.6.1 · abc1234",
+    ])
+      expect(text).toContain(t);
+    expect(html).toContain('alt="Mastercraft Electric Inc."');
+  });
+
+  // The logo block used to be shrink-0 and ran off phone screens with large text or zoom.
+  it("lets the logo block shrink and wrap on narrow screens", () => {
+    const brand = html.match(/class="(brand-block[^"]*)"/)[1];
+    expect(brand).not.toMatch(/(^| )shrink-0/);
+    expect(brand).toContain("min-w-0");
+    expect(html).toContain("flex-col-reverse");
+    expect(html).toContain("[overflow-wrap:anywhere]");
+    expect(html.match(/class="(brand-logo[^"]*)"/)[1]).toContain("max-w-[50%]");
+  });
+
+  it("the logo is a JPEG", () => {
+    const bytes = dataUrlBytes(MCE_LOGO);
+    expect([bytes[0], bytes[1]]).toEqual([0xff, 0xd8]);
+  });
+});
+
+describe("AppHeader line breaks", () => {
+  it("breaks the email only after the @ and the web address only before /prefab", () => {
+    const html = renderToStaticMarkup(<AppHeader title="T" />);
+    expect(html).toContain("prefab@<wbr/>mastercraftinc.com");
+    expect(html).toContain("mastercraftinc.com<wbr/>/prefab");
   });
 });

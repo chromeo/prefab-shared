@@ -1,6 +1,6 @@
 {
   "name": "@mastercraft/prefab-shared",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Code shared by the Mastercraft prefab request apps (panelboard, transformer, conduit).",
   "private": true,
   "type": "module",
@@ -11,7 +11,8 @@
     "./xlsx": "./src/xlsx.js",
     "./base64": "./src/base64.js",
     "./ui": "./src/ui/index.js",
-    "./styles.css": "./src/styles.css"
+    "./styles.css": "./src/styles.css",
+    "./logo": "./src/logo.js"
   },
   "files": [
     "src",

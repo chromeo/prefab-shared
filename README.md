@@ -23,14 +23,19 @@ with no browser-only APIs, so they work in the page, in Netlify functions and in
 | `Section({ n, title, status, id, defaultOpen, accordionMode, accordionTick, attemptTick })` | Collapsible form section: number badge, title, ✓ Complete / ⚠ Needs info badge, framed body. Expand all / Collapse all apply on each `accordionTick`; a section that appears later starts open. Reopens on each `attemptTick` while it needs attention. |
 | `Notice({ notice, close })`                                                                 | Bottom-of-screen message with an optional action (Undo). `notice`: `{ text, tone, action? }`.                                                                                                                                                           |
 | `ConfirmDialog({ title, choices, close, children })`                                        | In-app replacement for `confirm()`.                                                                                                                                                                                                                     |
+| `AppHeader({ title, intro, version })`                                                      | Title, intro and the Mastercraft logo/contact block. On phones the logo and contact share a line above the title and the email breaks only after its @, so nothing runs off the screen with large text or zoom.                                         |
 | `ScrollTopButton()`                                                                         | "Back to top" arrow, shown after scrolling about a screen.                                                                                                                                                                                              |
 | `styles.css`                                                                                | `.field`, `.section-label`, `.section-number`, `.section-card`, `.table-input`, `.btn-primary`, `.btn-secondary`, 16px fields on phones, `.no-print`.                                                                                                   |
+
+**Branding** (`@mastercraft/prefab-shared/logo`): `MCE_LOGO` (the logo as a base64 JPEG for the
+screen, print and Word), `dataUrlBytes(MCE_LOGO)` for Word's image bytes, `PREFAB_EMAIL` and
+`PREFAB_WEB`.
 
 ## Using it in an app
 
 ```json
 "dependencies": {
-  "@mastercraft/prefab-shared": "git+https://github.com/chromeo/prefab-shared.git#v1.1.0"
+  "@mastercraft/prefab-shared": "git+https://github.com/chromeo/prefab-shared.git#v1.2.0"
 }
 ```
 
@@ -68,13 +73,18 @@ Two app sessions may want to change this library while the apps are developed si
    version in the apps rather than writing a new one.
 3. Bump `version` in `package.json` (1.0.1 for fixes, 1.1.0 for additions, 2.0.0 if an app
    would have to change how it calls something). Note what changed below.
-4. Commit to `main`, tag it with the same version (`v1.1.0`), push both, and delete your
-   `wip/` branch. The next session can start.
+4. Commit, then check the commit is there (`git log -1`) before tagging it with the same
+   version (`v1.1.0`) on `main`. Push both and delete your `wip/` branch. The next session can
+   start. A tag must never point at a commit without the change; if one does, delete it at once
+   (`git push origin :refs/tags/vX.Y.Z`) before any app installs it.
 5. **Apps upgrade deliberately.** Each app changes its `#v…`, runs `npm install` and its tests,
    and ships as usual. An addition only one app needs doesn't make the others upgrade.
 
 ## Changes
 
+- **1.2.0** — `AppHeader`: panelboard's header, fixed for phones (its logo block was `shrink-0`
+  and ran off the screen with large text or Safari zoom). `/logo`: the Mastercraft logo and the
+  prefab shop contact, which each app had its own copy of.
 - **1.1.0** — Screen pieces and styles from the panelboard app: `Section`, `Notice`,
   `ConfirmDialog`, `ScrollTopButton`, `styles.css`. `Section` differs from panelboard's copy:
   Expand/Collapse all no longer collapses a section that appears afterwards; new `attemptTick`
