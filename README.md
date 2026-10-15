@@ -25,6 +25,9 @@ with no browser-only APIs, so they work in the page, in Netlify functions and in
 | `ConfirmDialog({ title, choices, close, children })`                                        | In-app replacement for `confirm()`.                                                                                                                                                                                                                     |
 | `AppHeader({ title, intro, version })`                                                      | Title, intro and the Mastercraft logo/contact block. On phones the logo and contact share a line above the title and the email breaks only after its @, so nothing runs off the screen with large text or zoom.                                         |
 | `ScrollTopButton()`                                                                         | "Back to top" arrow, shown after scrolling about a screen.                                                                                                                                                                                              |
+| `ProjectActions({ draftCount, openDrafts, newRequest })`                                    | Drafts (with a count) and New request under the header. Word and Print belong in Review & Send.                                                                                                                                                         |
+| `SectionControls({ expandAll, collapseAll })`                                               | "* Required" and Expand all                                                                                                                                                                                                                             | Collapse all above the first section. |
+| `PhoneReviewBar({ label, onReview })`                                                       | Phones only: Review & Send pinned to the bottom. Give the page `pb-24 sm:pb-…` so it doesn't cover the last field.                                                                                                                                      |
 | `styles.css`                                                                                | `.field`, `.section-label`, `.section-number`, `.section-card`, `.table-input`, `.btn-primary`, `.btn-secondary`, 16px fields on phones, `.no-print`.                                                                                                   |
 
 **Branding** (`@mastercraft/prefab-shared/logo`): `MCE_LOGO` (the logo as a base64 JPEG for the
@@ -82,6 +85,8 @@ Two app sessions may want to change this library while the apps are developed si
 
 ## Changes
 
+- **1.3.0** — `ProjectActions`, `SectionControls` and `PhoneReviewBar`: panelboard's toolbar,
+  section controls and phone Review & Send bar. Icons are inline, so no icon library is needed.
 - **1.2.1** — `AppHeader` on phones is a centered letterhead: logo full width, then email and
   web address (tappable links, one per line when they don't fit), then the version and a
   hairline above the title. Wider screens unchanged.

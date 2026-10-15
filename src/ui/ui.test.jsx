@@ -4,7 +4,16 @@ import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MCE_LOGO, dataUrlBytes } from "../logo.js";
-import { AppHeader, ConfirmDialog, Notice, ScrollTopButton, Section } from "./index.js";
+import {
+  AppHeader,
+  ConfirmDialog,
+  Notice,
+  PhoneReviewBar,
+  ProjectActions,
+  ScrollTopButton,
+  Section,
+  SectionControls,
+} from "./index.js";
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 let root, host;
@@ -153,5 +162,48 @@ describe("AppHeader on phones", () => {
   it("the email and web address can be tapped", () => {
     expect(html).toContain('href="mailto:prefab@mastercraftinc.com"');
     expect(html).toContain('href="https://mastercraftinc.com/prefab"');
+  });
+});
+
+describe("ProjectActions, SectionControls, PhoneReviewBar", () => {
+  const click = (text) =>
+    act(() =>
+      [...host.querySelectorAll("button")].find((b) => b.textContent.includes(text)).click(),
+    );
+
+  it("ProjectActions has only Drafts (with a count) and New request", () => {
+    const openDrafts = vi.fn(),
+      newRequest = vi.fn();
+    render(<ProjectActions draftCount={3} openDrafts={openDrafts} newRequest={newRequest} />);
+    expect([...host.querySelectorAll("button")].map((b) => b.textContent)).toEqual([
+      "Drafts3",
+      "New request",
+    ]);
+    click("Drafts");
+    click("New request");
+    expect(openDrafts).toHaveBeenCalled();
+    expect(newRequest).toHaveBeenCalled();
+    expect(renderToStaticMarkup(<ProjectActions />)).not.toContain("rounded-full");
+  });
+
+  it("SectionControls expands and collapses", () => {
+    const expandAll = vi.fn(),
+      collapseAll = vi.fn();
+    render(<SectionControls expandAll={expandAll} collapseAll={collapseAll} />);
+    expect(host.textContent).toContain("* Required");
+    click("Expand all");
+    click("Collapse all");
+    expect(expandAll).toHaveBeenCalled();
+    expect(collapseAll).toHaveBeenCalled();
+  });
+
+  it("PhoneReviewBar shows on phones only and opens Review & Send", () => {
+    const onReview = vi.fn();
+    render(<PhoneReviewBar label="Job 24-118" onReview={onReview} />);
+    expect(host.firstChild.className).toContain("sm:hidden");
+    expect(host.firstChild.className).toContain("no-print");
+    expect(host.textContent).toContain("Job 24-118");
+    click("Review & Send");
+    expect(onReview).toHaveBeenCalled();
   });
 });
