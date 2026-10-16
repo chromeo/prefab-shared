@@ -34,6 +34,21 @@ with no browser-only APIs, so they work in the page, in Netlify functions and in
 screen, print and Word), `dataUrlBytes(MCE_LOGO)` for Word's image bytes, `PREFAB_EMAIL` and
 `PREFAB_WEB`.
 
+**Email safety** (`@mastercraft/prefab-shared/email`, server side, for each app's send function).
+The forms are public with no sign-in, so a send function should trust nothing it receives:
+
+| Import                                                                     | What it does                                                                                                                                                                                                        |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `readJsonRequest(request)`                                                 | `{ payload }`, or `{ response }` to return: not POST (405), over 2 MB (413), not JSON or not an object (400).                                                                                                       |
+| `isSpamTrap(payload)`, `spamTrapResponse()`                                | The form's hidden `website` field is filled in only by bots: answer "sent" and send nothing.                                                                                                                        |
+| `requesterCopy({ requesterEmail, domains, to, fallbackReplyTo, outside })` | Who is copied and where replies go. Only `allowedDomains(PREFAB_REQUESTER_DOMAINS)` are copied. `outside: "ignore"` (default; panelboard) sends without the copy; `"reject"` (transformer) refuses with an `error`. |
+| `checkedAttachment({ filename, bytes, allowed })`                          | An attachment only if its **bytes** are one of `allowed` (`pdf`, `xlsx`, `png`, `jpeg`, `gif`, `webp`); never SVG. `sniffFileType(bytes)` underneath.                                                               |
+| `sendViaResend({ apiKey, email })`                                         | `{ ok, id }` or `{ ok: false, status, error }`, with a plain message when Resend can't be reached.                                                                                                                  |
+| `json`, `cleanHeader`, `cleanFilename`, `LIMITS`                           | Responses, header-safe text (no line breaks), safe file names, size limits.                                                                                                                                         |
+
+Best practice (panelboard 10.28.0): the page sends form **data**; the function builds the email
+from it with the app's own work-order code, so nobody can substitute their own message.
+
 ## Using it in an app
 
 ```json
@@ -85,6 +100,10 @@ Two app sessions may want to change this library while the apps are developed si
 
 ## Changes
 
+- **1.4.0** — `/email`: the send functions' safety checks in one tested place: request parsing
+  with a size cap, spam trap, company-only copies (`outside: "ignore"` or `"reject"`), attachments
+  checked by their bytes, and Resend errors including "can't be reached". From transformer's
+  safeguards and panelboard's function; nothing changes in an app until it adopts them.
 - **1.3.1** — Fix: the 16px phone fields (stops iOS zooming into a field) never took effect in
   1.1.0–1.3.0. That rule sat outside an `@layer`, so it landed at the top of each app's built
   CSS and the 14px field rule overrode it. Every rule in `styles.css` is now inside
