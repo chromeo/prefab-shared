@@ -85,6 +85,11 @@ Two app sessions may want to change this library while the apps are developed si
 
 ## Changes
 
+- **1.3.1** — Fix: the 16px phone fields (stops iOS zooming into a field) never took effect in
+  1.1.0–1.3.0. That rule sat outside an `@layer`, so it landed at the top of each app's built
+  CSS and the 14px field rule overrode it. Every rule in `styles.css` is now inside
+  `@layer components`, and a test keeps it that way. Upgrade to get the fix; nothing else to
+  change in the app.
 - **1.3.0** — `ProjectActions`, `SectionControls` and `PhoneReviewBar`: panelboard's toolbar,
   section controls and phone Review & Send bar. Icons are inline, so no icon library is needed.
 - **1.2.1** — `AppHeader` on phones is a centered letterhead: logo full width, then email and

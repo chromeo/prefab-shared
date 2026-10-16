@@ -1,5 +1,10 @@
-/* Shared form styles for the prefab apps. Import from the app's index.css, after the
-   @tailwind directives:  @import "@mastercraft/prefab-shared/styles.css";  */
+/* Shared form styles for the prefab apps. Import at the top of the app's index.css (CSS needs
+   @import before any other rule), then the @tailwind directives:
+     @import "@mastercraft/prefab-shared/styles.css";
+     @tailwind base; @tailwind components; @tailwind utilities;
+   Every rule here sits in an @layer, so Tailwind places it in order no matter where the import
+   lands. A rule outside a layer would end up at the very top of the built CSS, where same-weight
+   rules later in the file override it. */
 
 @layer components {
   .btn-primary {
@@ -38,21 +43,22 @@
   .section-number {
     @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white;
   }
-}
 
-/* Phones: 16px text stops iOS from zooming into a field on focus. */
-@media (max-width: 639px) {
-  .field input,
-  .field select,
-  .field textarea,
-  .table-input {
-    font-size: 16px;
+  /* Phones: 16px text stops iOS from zooming into a field on focus. It must come after the
+     field rules above (same weight), so it stays in this layer, last. */
+  @media (max-width: 639px) {
+    .field input,
+    .field select,
+    .field textarea,
+    .table-input {
+      font-size: 16px;
+    }
   }
-}
 
-/* Printing uses each app's print layout; screen-only pieces hide. */
-@media print {
-  .no-print {
-    display: none !important;
+  /* Printing uses each app's print layout; screen-only pieces hide. */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
   }
 }
