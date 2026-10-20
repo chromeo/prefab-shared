@@ -3,6 +3,7 @@
 // someone skipping the page. These checks are the same in every app; each app's function still
 // decides what the email says (ideally building it from the form data itself, not from HTML the
 // page sends).
+import { UPLOAD_LIMITS } from "./upload.js";
 
 /** A JSON response for a Netlify function. */
 export const json = (status, body) =>
@@ -17,7 +18,7 @@ export const LIMITS = {
   bodyBytes: 2 * 1024 * 1024, // the whole request, before parsing
   subject: 250,
   text: 200_000, // characters in an email body (text or HTML)
-  attachmentBytes: 35 * 1024 * 1024, // all attachments together; Resend's limit is 40 MB
+  attachmentBytes: UPLOAD_LIMITS.totalBytes, // all attachments together (see upload.js)
 };
 
 /** One-line header value: no line breaks (which could inject extra headers). */

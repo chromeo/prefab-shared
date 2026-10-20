@@ -86,8 +86,9 @@ conduit-prefab, prefab-shared). Change it in all four together.
 - Project Information, two columns on phones and three on desktop: Job name, Job number, Phase
   code, Cost code or PO #, Ordered by, Phone, Your email (for a copy), Date ordered, Date needed.
 - Phones: PhoneReviewBar pinned at the bottom; the in-page Review & Send button hides below `sm`.
-- Attachments: PDFs and photos, 12 files, 4 MB each, 35 MB total, uploaded one at a time to
-  `/api/prefab-upload` (Netlify Blobs); the send function attaches and deletes them.
+- Attachments: PDFs and photos, 12 files, 20 MB each, 25 MB total (prefab-shared 1.5.0 `/upload`:
+  files over 4 MB go in 4 MB parts), uploaded one at a time to `/api/prefab-upload` (Netlify
+  Blobs); the send function attaches and deletes them.
 
 ### Email rules (learned the hard way)
 

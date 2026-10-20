@@ -49,6 +49,16 @@ The forms are public with no sign-in, so a send function should trust nothing it
 Best practice (panelboard 10.28.0): the page sends form **data**; the function builds the email
 from it with the app's own work-order code, so nobody can substitute their own message.
 
+**Large attachments** (`@mastercraft/prefab-shared/upload`, page and upload function). A Netlify
+function request carries about 4 MB of file, so a bigger file goes in 4 MB parts that the
+function joins. The person filling out the form sees nothing different.
+
+| Import                                      | What it does                                                                                                                                                                                                                                                                                                  |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `uploadInParts(file, post, { onPart })`     | Page side. Sends the file whole (4 MB or less) or in parts; `post(headers, body)` makes one request with the app's own headers added. Returns the last `Response`, or the first failed one, unread.                                                                                                           |
+| `receiveUpload(request, store, { prefix })` | Function side. `{ bytes }` once the file is complete (whole, or the last part joined to the earlier ones, which are then removed); otherwise `{ response }` to return: an error, or "part saved". Parts wait in `store` (Netlify Blobs) under `prefix`, default `pending/`, so the app's cleanup covers them. |
+| `UPLOAD_LIMITS`, `megabytes(bytes)`         | 4 MB per request, 20 MB per file, 25 MB per email (Microsoft 365 refuses messages over 36 MB by default, and attachments grow by a third inside an email). `"20 MB"` for messages.                                                                                                                            |
+
 ## Using it in an app
 
 ```json
@@ -100,6 +110,11 @@ Two app sessions may want to change this library while the apps are developed si
 
 ## Changes
 
+- **1.5.0** — `/upload`: attachments up to 20 MB each, sent in 4 MB parts (one Netlify
+  function request) that the upload function joins; the person sees nothing different. From
+  panelboard. `LIMITS.attachmentBytes` (in `/email`) drops from 35 MB to 25 MB, so the email
+  stays under Microsoft 365's default 36 MB receive limit; an app on `/email` should lower its
+  page's total to 25 MB when it upgrades.
 - **1.4.0** — `/email`: the send functions' safety checks in one tested place: request parsing
   with a size cap, spam trap, company-only copies (`outside: "ignore"` or `"reject"`), attachments
   checked by their bytes, and Resend errors including "can't be reached". From transformer's
