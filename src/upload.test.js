@@ -6,8 +6,8 @@ const memoryStore = () => {
   const blobs = new Map();
   return {
     blobs,
-    set: async (key, data) => void blobs.set(key, data.slice()),
-    get: async (key) => (blobs.has(key) ? blobs.get(key).buffer : null),
+    set: async (key, data) => void blobs.set(key, data.slice(0)),
+    get: async (key) => (blobs.has(key) ? blobs.get(key) : null),
     delete: async (key) => void blobs.delete(key),
   };
 };
@@ -42,7 +42,7 @@ describe("uploading in parts", () => {
     const r = await uploadInParts(fileOf(10), postTo(handler, calls), LIMITS);
     expect((await r.json()).key).toBe("pending/file-1");
     expect(calls).toEqual([{}]);
-    expect(finished[0]).toHaveLength(10);
+    expect(finished[0].byteLength).toBe(10);
   });
 
   it("sends a larger file in parts and gets back the same bytes, with nothing left over", async () => {
@@ -60,7 +60,7 @@ describe("uploading in parts", () => {
     expect(calls[0]).not.toHaveProperty("X-Upload-Id");
     expect(calls[3]["X-Upload-Id"]).toMatch(/^[0-9a-f-]{36}$/);
     expect(finished).toHaveLength(1);
-    expect([...finished[0]]).toEqual([...new Uint8Array(await file.arrayBuffer())]);
+    expect([...new Uint8Array(finished[0])]).toEqual([...new Uint8Array(await file.arrayBuffer())]);
     expect(store.blobs.size).toBe(0); // the parts are removed once joined
   });
 

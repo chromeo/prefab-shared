@@ -73,7 +73,7 @@ const whole = (value) => (/^\d{1,3}$/.test(String(value)) ? Number(value) : NaN)
  * Function side. Reads one upload request: a whole file, or one part of a larger one.
  *   store   where parts wait (a Netlify Blobs store: set, get, delete)
  *   prefix  key prefix for the parts; use the same one the app's cleanup accepts
- * Returns { bytes } (a Uint8Array) once the file is complete, or { response } to return as-is:
+ * Returns { bytes } (an ArrayBuffer, which Netlify Blobs stores as-is) once the file is complete, or { response } to return as-is:
  * an error, or, for a part before the last, { ok, uploadId, part }.
  */
 export const receiveUpload = async (
@@ -98,13 +98,13 @@ export const receiveUpload = async (
   // The page never sends more than one part per request; anything bigger isn't from the page.
   const oversize = { response: json(413, { error: "The upload is too large for one request." }) };
   if (Number(headers.get("content-length") || 0) > partBytes) return oversize;
-  const bytes = new Uint8Array(await request.arrayBuffer());
-  if (!bytes.length) return { response: json(400, { error: "The uploaded file is empty." }) };
-  if (bytes.length > partBytes) return oversize;
+  const bytes = await request.arrayBuffer();
+  if (!bytes.byteLength) return { response: json(400, { error: "The uploaded file is empty." }) };
+  if (bytes.byteLength > partBytes) return oversize;
   if (parts === 1) return { bytes };
 
   // A part before the last must be full size, so the parts can only add up one way.
-  if (part < parts && bytes.length !== partBytes)
+  if (part < parts && bytes.byteLength !== partBytes)
     return { response: json(400, { error: "Invalid upload." }) };
   const id = part === 1 ? crypto.randomUUID() : String(headers.get(ID) || "");
   if (!ID_FORMAT.test(id)) return { response: json(400, { error: "Invalid upload." }) };
@@ -124,16 +124,16 @@ export const receiveUpload = async (
         response: json(400, { error: "The upload was interrupted. Try sending again." }),
       };
     }
-    earlier.push(new Uint8Array(data));
+    earlier.push(data);
   }
   await Promise.allSettled(earlier.map((_, i) => store.delete(key(i + 1))));
-  const size = earlier.reduce((n, x) => n + x.length, bytes.length);
+  const size = earlier.reduce((n, x) => n + x.byteLength, bytes.byteLength);
   if (size > fileBytes) return tooBig();
   const file = new Uint8Array(size);
   let at = 0;
   for (const chunk of [...earlier, bytes]) {
-    file.set(chunk, at);
-    at += chunk.length;
+    file.set(new Uint8Array(chunk), at);
+    at += chunk.byteLength;
   }
-  return { bytes: file };
+  return { bytes: file.buffer };
 };
