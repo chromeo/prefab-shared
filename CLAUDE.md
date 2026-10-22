@@ -81,8 +81,11 @@ conduit-prefab, prefab-shared). Change it in all four together.
 - Page frame: white edge to edge on phones (`bg-white`), a rounded white card on `sm:bg-slate-100`
   above that; `pb-24` on phones for the bottom bar.
 - Top of the form: AppHeader → ProjectActions (Drafts, New request; Word and Print live in Review &
-  Send) → SectionControls → numbered Sections. Only Section 1 is open on load; a section that
-  appears later opens; Review & Send reopens sections that need info.
+  Send) → SectionControls → numbered Sections. Only Section 1 is open on load, and a section
+  that appears later (a service was ticked) starts closed. Each section ends with **Next: …**,
+  which closes it and opens the next; Tab out of a finished section does the same. Sections
+  slide open and closed over 0.2 s (`Section` `command`, prefab-shared 1.6.0). Review & Send
+  reopens sections that need info.
 - Project Information, two columns on phones and three on desktop: Job name, Job number, Phase
   code, Cost code or PO #, Ordered by, Phone, Your email (for a copy), Date ordered, Date needed.
 - Phones: PhoneReviewBar pinned at the bottom; the in-page Review & Send button hides below `sm`.

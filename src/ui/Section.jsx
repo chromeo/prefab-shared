@@ -1,5 +1,9 @@
 import { useEffect, useId, useRef, useState } from "react";
 
+const reducedMotion = () =>
+  typeof window !== "undefined" &&
+  !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
 const Chevron = ({ open }) => (
   <svg
     viewBox="0 0 24 24"
@@ -27,6 +31,10 @@ const Chevron = ({ open }) => (
  *   attemptTick    bump on every Review & Send attempt: a section that needs attention reopens,
  *                  even if it was closed by hand.
  *   id             optional; the <section> gets id="section-<id>" for scrolling to it.
+ *   command        { open, tick }: opens (true) or closes (false) the section each time tick
+ *                  changes, for a guided form (a Next button, Tab out of a finished section).
+ * Opening and closing slide over 0.2 s (instant with reduced motion). A closed section's
+ * fields are inert, so Tab skips them and lands on the next section's header.
  */
 export function Section({
   n,
@@ -38,17 +46,30 @@ export function Section({
   accordionMode,
   accordionTick,
   attemptTick,
+  command,
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  // True while sliding: the body clips its content until the slide ends, then lets focus rings
+  // and shadows show again.
+  const [sliding, setSliding] = useState(false);
+  const toggle = (next) =>
+    setOpen((was) => {
+      const value = typeof next === "function" ? next(was) : next;
+      if (value !== was && !reducedMotion()) setSliding(true);
+      return value;
+    });
   const bodyId = useId();
   const mounted = useRef(false);
   useEffect(() => {
-    if (mounted.current && accordionMode) setOpen(accordionMode === "open");
+    if (mounted.current && accordionMode) toggle(accordionMode === "open");
     mounted.current = true;
   }, [accordionTick]);
   useEffect(() => {
-    if (status === "warning") setOpen(true);
+    if (status === "warning") toggle(true);
   }, [status, attemptTick]);
+  useEffect(() => {
+    if (command) toggle(!!command.open);
+  }, [command?.tick]);
   return (
     <section
       id={id ? `section-${id}` : undefined}
@@ -58,7 +79,7 @@ export function Section({
       <button
         type="button"
         className={`flex w-full items-center gap-2.5 rounded-lg px-1 py-1.5 text-left hover:bg-slate-50 sm:gap-3 sm:py-2 ${status === "warning" ? "bg-amber-50" : ""}`}
-        onClick={() => setOpen((x) => !x)}
+        onClick={() => toggle((x) => !x)}
         aria-expanded={open}
         aria-controls={bodyId}
       >
@@ -86,9 +107,15 @@ export function Section({
       </button>
       <div
         id={bodyId}
-        className={`${open ? "block" : "hidden"} rounded-lg border border-slate-200 p-3 sm:p-4`}
+        data-open={open ? "true" : "false"}
+        aria-hidden={open ? undefined : "true"}
+        inert={open ? undefined : ""}
+        className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        onTransitionEnd={(e) => e.target === e.currentTarget && setSliding(false)}
       >
-        {children}
+        <div className={`min-h-0 ${!open || sliding ? "overflow-hidden" : ""}`}>
+          <div className="rounded-lg border border-slate-200 p-3 sm:p-4">{children}</div>
+        </div>
       </div>
     </section>
   );

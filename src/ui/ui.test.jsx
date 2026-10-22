@@ -24,7 +24,8 @@ const render = (el) => {
   act(() => root.render(el));
 };
 const rerender = (el) => act(() => root.render(el));
-const bodyOpen = () => !host.querySelector("section > div").className.includes("hidden");
+const body = () => host.querySelector("section > div");
+const bodyOpen = () => body().dataset.open === "true";
 const toggle = () => act(() => host.querySelector("section > button").click());
 afterEach(() => {
   act(() => root?.unmount());
@@ -67,6 +68,36 @@ describe("Section", () => {
     expect(bodyOpen()).toBe(false);
     rerender(s(2));
     expect(bodyOpen()).toBe(true);
+  });
+});
+
+describe("Section, guided", () => {
+  it("opens and closes on each command, for a Next button or Tab out of a finished section", () => {
+    const s = (command) => <Section n="2" title="T" defaultOpen={false} command={command} />;
+    render(s(null));
+    expect(bodyOpen()).toBe(false);
+    rerender(s({ open: true, tick: 1 }));
+    expect(bodyOpen()).toBe(true);
+    rerender(s({ open: false, tick: 2 }));
+    expect(bodyOpen()).toBe(false);
+    rerender(s(null)); // no command for this section: it stays as it is
+    expect(bodyOpen()).toBe(false);
+  });
+
+  it("a closed section can't be tabbed into or read out, and slides rather than snapping", () => {
+    render(
+      <Section n="2" title="T" defaultOpen={false}>
+        <input />
+      </Section>,
+    );
+    expect(body().getAttribute("inert")).toBe("");
+    expect(body().getAttribute("aria-hidden")).toBe("true");
+    expect(body().className).toContain("grid-rows-[0fr]");
+    expect(body().className).toContain("transition-[grid-template-rows]");
+    expect(body().className).toContain("motion-reduce:transition-none");
+    toggle();
+    expect(body().hasAttribute("inert")).toBe(false);
+    expect(body().className).toContain("grid-rows-[1fr]");
   });
 });
 
