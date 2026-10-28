@@ -4,10 +4,41 @@ The library the three prefab apps share. README.md lists every export and the ch
 before changing anything.
 
 - Work from `main`. **This repo is the exception to "never push to main":** releases are tagged
-  commits on `main`, made under the wip-branch rule below. A `dev` branch exists but isn't used.
+  commits on `main`, made under the wip-branch rule below. The `dev` and `claude-md` branches are
+  leftovers and aren't used.
 - No Netlify site and no deploy cost here; a change reaches an app only when that app upgrades.
 - Plain JS files must work in the browser, in Netlify functions and in tests (no browser-only
   APIs). Screen pieces in `src/ui/` are React 18 with Tailwind classes.
+
+## Every change (definition of done)
+
+1. `git pull`, then `git ls-remote --heads origin`: if a `wip/…` branch exists, another session
+   has the turn; wait. Otherwise claim it: `git push origin HEAD:refs/heads/wip/<app>-<topic>`.
+2. Start from the best existing version in an app; change the code and its tests (`npm test`).
+3. Code changes: bump `package.json` (patch fix, minor addition, major when an app must change how
+   it calls something), add a README "Changes" entry, and update README's export tables. Docs-only
+   changes don't bump the version or get a tag.
+4. Commit; check `git show --stat HEAD` holds the change, then `git tag vX.Y.Z`. Run the release
+   steps with `set -e`. Push `main` and the tag, then delete the wip branch.
+5. Tell Gary what each app needs to adopt it (pin, any call changes, any CLAUDE.md shared-rule
+   text). Don't edit an app's repo from here or from another app's session.
+6. If the change alters the shared rules below, change them in all four repos' CLAUDE.md: here,
+   and give Gary the exact text for the app sessions.
+
+## Lessons (learned the hard way)
+
+- A failed step in a multi-line release script once let a later line tag the previous commit.
+  `set -e`, and check the commit before tagging; delete a wrong tag at once
+  (`git push origin :refs/tags/vX.Y.Z`) before any app installs it.
+- `styles.css` rules must sit inside `@layer components`: one outside a layer lands at the top of
+  the app's built CSS, where the app's own rules override it (the iOS 16px fix silently failed in
+  1.1.0–1.3.0). `styles.test.js` enforces it.
+- Netlify Blobs stores an ArrayBuffer (or string/Blob) as-is; pass `.buffer`, not a Uint8Array.
+- React 18 doesn't know `inert`: pass `inert=""` (a string) when closed, `undefined` when open.
+- `Section` tests read `data-open` on the body, not a `hidden` class (since 1.6.0 it slides).
+- Apps ship this as JSX source: each app needs the Tailwind `content` path and Vitest
+  `deps.inline` (README "Using it in an app"), or classes go missing / tests fail to compile.
+- npm rewrites the `git+https` spec to `github:`; apps restore the spelling after installing.
 
 ## Shared rules for the prefab repos
 

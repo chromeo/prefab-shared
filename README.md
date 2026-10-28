@@ -63,7 +63,7 @@ function joins. The person filling out the form sees nothing different.
 
 ```json
 "dependencies": {
-  "@mastercraft/prefab-shared": "git+https://github.com/chromeo/prefab-shared.git#v1.2.0"
+  "@mastercraft/prefab-shared": "git+https://github.com/chromeo/prefab-shared.git#v1.6.0"
 }
 ```
 
