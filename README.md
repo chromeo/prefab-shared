@@ -5,15 +5,16 @@ here once reaches every app that upgrades, instead of being found and fixed in e
 
 ## What's in it
 
-**Files** (`@mastercraft/prefab-shared`, or `/pdf`, `/xlsx`, `/zip`, `/base64`): plain JavaScript
+**Files** (`@mastercraft/prefab-shared`, or `/pdf`, `/xlsx`, `/zip`, `/base64`, `/engraving`): plain JavaScript
 with no browser-only APIs, so they work in the page, in Netlify functions and in tests.
 
-| Import                                              | What it does                                                                                                                                                                      |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `buildPlatesPdf(plates, meta)`                      | Engraved plates as a vector PDF, one page per plate at finished size, real text (Δ drawn as a triangle). This is what the engraver receives; Microsoft 365 holds SVG attachments. |
-| `buildXlsx({ sheetName, rows, widths, landscape })` | A one-sheet styled `.xlsx` (engraving orders and similar).                                                                                                                        |
-| `zipBytes(files)`                                   | A ZIP of `{ name, text }` / `{ name, bytes }` files.                                                                                                                              |
-| `toBase64(bytes or file)`                           | Base64 for email attachments.                                                                                                                                                     |
+| Import                                                                                                                                                                                                             | What it does                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `buildPlatesPdf(plates, meta)`                                                                                                                                                                                     | Engraved plates as a vector PDF, one page per plate at finished size, real text (Δ drawn as a triangle). This is what the engraver receives; Microsoft 365 holds SVG attachments.                                                                                                                                                                      |
+| `buildXlsx({ sheetName, rows, widths, landscape })`                                                                                                                                                                | A one-sheet styled `.xlsx` (engraving orders and similar).                                                                                                                                                                                                                                                                                             |
+| `/engraving`: `labelGeometry(lines)`, `makeLabelSvg(color, lines)`, `pdfPlate(color, lines)`, `groupPlates(plates)`, `engraverSpec(options)`, `buildEngraverXlsx(groups, header)`, `LABEL_COLORS`, `DEFAULT_PLATE` | Engraved phenolic plates and Impact Engraving's order form. The app chooses the words; this lays out the plate (3/8" first line, 1/4" the rest, at least 4" × 2"), previews it (SVG, screen only), turns it into a `buildPlatesPdf` plate, and writes the order (.xlsx) grouped by spec with quantities. Options: `{ color, adhesive, bevel, holes }`. |
+| `zipBytes(files)`                                                                                                                                                                                                  | A ZIP of `{ name, text }` / `{ name, bytes }` files.                                                                                                                                                                                                                                                                                                   |
+| `toBase64(bytes or file)`                                                                                                                                                                                          | Base64 for email attachments.                                                                                                                                                                                                                                                                                                                          |
 
 **Screen pieces** (`@mastercraft/prefab-shared/ui`, React 18, Tailwind classes) and
 **styles** (`@mastercraft/prefab-shared/styles.css`):
@@ -110,6 +111,11 @@ Two app sessions may want to change this library while the apps are developed si
 
 ## Changes
 
+- **1.7.0** — New `/engraving`: plate layout, SVG preview, PDF plates and the Impact
+  Engraving order form (.xlsx), taken from the panelboard app's `label.js` and
+  `engraverOrder.js` and made independent of its form (plate options are
+  `{ color, adhesive, bevel, holes }`; the app supplies each plate's lines). First used by the
+  Fault Current Calculator. Nothing changes for apps that don't import it.
 - **1.6.0** — `Section` slides open and closed (0.2 s, instant with reduced motion) instead of
   snapping, takes a `command` `{ open, tick }` so an app can open the next section (a Next button,
   Tab out of a finished section), and makes a closed body `inert` so Tab skips its fields. Tests that
